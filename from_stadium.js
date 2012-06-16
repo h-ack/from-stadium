@@ -36,6 +36,30 @@ function setTime(time) {
   tweets.append('<div>' + msgs + '</div><br/>');
 }
 
+function showPhotos(time) {
+  console.log("showPhotos: " + time);
+  var photo_array = photos[time];
+  if (typeof photos_array != 'undefined') {
+    $('#photos').html('');
+    photo_array.forEach(function(photo) {
+      $('#photos').append($('<div>')
+        .addClass('instagram-placeholder')
+        .attr('id', photo.id)
+        .append(
+          $('<a>')
+            .attr('target', '_blank')
+            .attr('href', photo.link)
+            .append(
+              $('<img>')
+                .addClass('instagram-image')
+                .attr('src', photo.images.thumbnail.url)
+            )
+        )
+      );
+    })
+  }
+}
+
 $(document).ready(function() {
   var clientId = '3365ff268278435aa79452ab1f3f80ca';
   var stadiumCoords = [50.43222, 30.51803]
@@ -70,10 +94,12 @@ $(document).ready(function() {
     slide: function(event, ui) {
       console.log(ui.value);
       time = ui.value;
+      setTime(time);
       time = time - (time % 60);
       console.log(time);
       console.log(photos[time]);
       console.log(timed_tweets[time]);
+      showPhotos(time);
     },
     create: function(event, ui) {
       MATCH_DATA.forEach(function(match_event) {
