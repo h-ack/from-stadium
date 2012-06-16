@@ -16,7 +16,7 @@ Event types:
 
 */
 
-[
+var MATCH_DATA = [
   {
     time: 1380,
     team: 'England',
@@ -35,4 +35,4 @@ Event types:
     type: 'yellow_card',
     subjects: ['Milner']
   }
-]
+];

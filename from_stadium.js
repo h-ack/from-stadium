@@ -9,5 +9,12 @@ $(document).ready(function() {
     clientId: clientId
   });
 
-  $("#slider").slider();
+  $("#slider").slider({
+    create: function(event, ui) {
+      MATCH_DATA.forEach(function(match_event) {
+        console.log(match_event);
+        $("#slider").append("<div class='event " + match_event['type'] + "' style='left: " + ((match_event['time']/5400.0)*100) + "%'>" + match_event['type'] + " " + match_event['subjects'][0] + " (" + match_event['team'] + ")</div>")
+      });
+    }
+  });
 });

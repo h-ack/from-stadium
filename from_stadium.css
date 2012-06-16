@@ -23,3 +23,13 @@ hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
 #result {
   font-size: 30px;
 }
+
+#slider {
+  margin: 40px 0;
+}
+
+#slider .event {
+  position: absolute;
+  color: #ffffff;
+  margin-top: 20px;
+}
