@@ -11,7 +11,8 @@ function searchTwitter(query) {
        time = created_at[1];
        time = time.substring(1,18);
        time = Date.parse(time);
-       time = time - (time % 60);
+       time = Math.floor(time / 1000);
+       time = time - (time % 60) + (3600 * 2);
        if (typeof timed_tweets[time] == 'undefined') {
          timed_tweets[time] = [data['results'][res]['from_user'] + ' : <p>' + data['results'][res]['text'] + '</p>']
        }
@@ -28,6 +29,7 @@ function setTime(time) {
   var tweets = $('#tweets');
   tweets.html('');
   msgs = 'NO TWEETS';
+  time = Math.floor(time / 1000);
   time = time - (time % 60);
   if (typeof timed_tweets[time] != 'undefined')
     msgs = timed_tweets[time];
@@ -71,7 +73,6 @@ $(document).ready(function() {
       time = time - (time % 60);
       console.log(time);
       console.log(photos[time]);
-      console.log(timed_tweets);
       console.log(timed_tweets[time]);
     },
     create: function(event, ui) {
