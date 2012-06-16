@@ -41,8 +41,8 @@ function showPhotos(time) {
   console.log("showPhotos: " + time);
   var photo_array = photos[time];
   console.log("photo_array: ");
+  $('#photos').html('');
   if (typeof photo_array != 'undefined') {
-    $('#photos').html('');
     photo_array.forEach(function(photo) {
       console.log(photo);
       $('#photos').append($('<div>')
