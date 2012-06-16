@@ -29,10 +29,11 @@ function setTime(time) {
   var tweets = $('#tweets');
   tweets.html('');
   msgs = 'NO TWEETS';
-  time = Math.floor(time / 1000);
   time = time - (time % 60);
+  console.log(time);
   if (typeof timed_tweets[time] != 'undefined')
     msgs = timed_tweets[time];
+  console.log('<div>' + msgs + '</div><br/>');
   tweets.append('<div>' + msgs + '</div><br/>');
 }
 
