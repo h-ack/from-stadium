@@ -39,9 +39,11 @@ function setTime(time) {
 function showPhotos(time) {
   console.log("showPhotos: " + time);
   var photo_array = photos[time];
-  if (typeof photos_array != 'undefined') {
+  console.log("photo_array: ");
+  if (typeof photo_array != 'undefined') {
     $('#photos').html('');
     photo_array.forEach(function(photo) {
+      console.log(photo);
       $('#photos').append($('<div>')
         .addClass('instagram-placeholder')
         .attr('id', photo.id)
