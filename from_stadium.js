@@ -41,6 +41,14 @@ $(document).ready(function() {
   });
 
   $("#slider").slider({
+    min: 1339793100,
+    max: 1339800600,
+    step: 60,
+    slide: function(event, ui) {
+      console.log(event);
+      console.log(ui);
+      console.log(ui.value);
+    },
     create: function(event, ui) {
       MATCH_DATA.forEach(function(match_event) {
 	console.log(match_event);
