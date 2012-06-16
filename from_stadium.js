@@ -1,4 +1,6 @@
 var timed_tweets = {};
+var photos = {};
+
 function searchTwitter(query) {
   $.ajax({
     url: 'http://search.twitter.com/search.json?' + jQuery.param(query),
@@ -8,6 +10,8 @@ function searchTwitter(query) {
        created_at = data['results'][res]['created_at'].split(',')
        time = created_at[1];
        time = time.substring(1,18);
+       time = Date.parse(time);
+       time = time - (time % 60);
        if (typeof timed_tweets[time] == 'undefined') {
          timed_tweets[time] = [data['results'][res]['from_user'] + ' : <p>' + data['results'][res]['text'] + '</p>']
        }
@@ -24,6 +28,7 @@ function setTime(time) {
   var tweets = $('#tweets');
   tweets.html('');
   msgs = 'NO TWEETS';
+  time = time - (time % 60);
   if (typeof timed_tweets[time] != 'undefined')
     msgs = timed_tweets[time];
   tweets.append('<div>' + msgs + '</div><br/>');
@@ -42,8 +47,17 @@ $(document).ready(function() {
     },
     clientId: clientId,
     onComplete: function(data, res) {
-      console.log(data);
-      console.log(res);
+      for (photo in res['data']) {
+       time = (res['data'][photo]['created_time']);
+       time = time - (time % 60)
+       picture = res['data'][photo]
+       if (typeof photos[time] == 'undefined') {
+         photos[time] = [picture]
+       }
+       else {
+         photos[time].push(picture)
+       }
+      }
     }
   });
 
@@ -52,9 +66,13 @@ $(document).ready(function() {
     max: 1339800600,
     step: 60,
     slide: function(event, ui) {
-      console.log(event);
-      console.log(ui);
       console.log(ui.value);
+      time = ui.value;
+      time = time - (time % 60);
+      console.log(time);
+      console.log(photos[time]);
+      console.log(timed_tweets);
+      console.log(timed_tweets[time]);
     },
     create: function(event, ui) {
       MATCH_DATA.forEach(function(match_event) {
@@ -73,6 +91,6 @@ $(document).ready(function() {
 });
 
 $(document).bind('tweets-parsed', function() {
-  initial_time = '15 Jun 2012 20:45';
+  initial_time = Date.parse('15 Jun 2012 20:45');
   setTime(initial_time);
 });
