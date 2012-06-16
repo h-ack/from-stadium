@@ -16,23 +16,27 @@ Event types:
 
 */
 
-var MATCH_DATA = [
+var MATCH_EVENTS = [
   {
     time: 1380,
-    team: 'England',
+    team: 'england',
     type: 'goal',
-    subjects: ['Carroll']
+    subjects: ['carroll']
   },
   {
     time: 2940,
-    team: 'Sweden',
+    team: 'sweden',
     type: 'goal',
-    subjects: ['Johnson']
+    subjects: ['johnson']
   },
   {
     time: 3480,
-    team: 'Sweden',
+    team: 'sweden',
     type: 'yellow_card',
-    subjects: ['Milner']
+    subjects: ['milner']
   }
 ];
+
+var MATCH_START_TIME = 1339793100;
+var MATCH_END_TIME = 1339800600;
+var MATCH_TEAMS = ['sweden', 'england'];

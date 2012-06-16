@@ -1,5 +1,6 @@
-var timed_tweets = {};
-var photos = {};
+var TIMED_TWEETS = {};
+var PHOTOS = {};
+var SCORE_BY_TIME = scoreByTime();
 
 function searchTwitter(query) {
   $.ajax({
@@ -13,11 +14,11 @@ function searchTwitter(query) {
        time = Date.parse(time);
        time = Math.floor(time / 1000);
        time = time - (time % 60) + (3600 * 2);
-       if (typeof timed_tweets[time] == 'undefined') {
-         timed_tweets[time] = [data['results'][res]['from_user'] + ' : <p>' + data['results'][res]['text'] + '</p>']
+       if (typeof TIMED_TWEETS[time] == 'undefined') {
+         TIMED_TWEETS[time] = [data['results'][res]['from_user'] + ' : <p>' + data['results'][res]['text'] + '</p>']
        }
        else {
-         timed_tweets[time].push(data['results'][res]['from_user'] + ' : <p>' + data['results'][res]['text'] + '</p>')
+         TIMED_TWEETS[time].push(data['results'][res]['from_user'] + ' : <p>' + data['results'][res]['text'] + '</p>')
        }
      }
      $(document).trigger('tweets-parsed');
@@ -30,36 +31,67 @@ function setTime(time) {
   tweets.html('');
   msgs = 'NO TWEETS';
   time = time - (time % 60);
-  console.log(time);
-  if (typeof timed_tweets[time] != 'undefined')
-    msgs = timed_tweets[time];
-  console.log('<div>' + msgs + '</div><br/>');
+  if (typeof TIMED_TWEETS[time] != 'undefined')
+    msgs = TIMED_TWEETS[time];
   tweets.append('<div>' + msgs + '</div><br/>');
 }
 
+function createPhotoElement(photo) {
+  $('#photos').append($('<div>')
+    .addClass('instagram-placeholder')
+    .attr('id', photo.id)
+    .append(
+      $('<a>')
+        .attr('target', '_blank')
+        .attr('href', photo.link)
+        .append(
+          $('<img>')
+            .addClass('instagram-image')
+            .attr('src', photo.images.thumbnail.url)
+        )
+    )
+  );
+}
+
 function showPhotos(time) {
-  console.log("showPhotos: " + time);
-  var photo_array = photos[time];
-  console.log("photo_array: ");
+  var photo_array = PHOTOS[time];
   $('#photos').html('');
   if (typeof photo_array != 'undefined') {
     photo_array.forEach(function(photo) {
-      console.log(photo);
-      $('#photos').append($('<div>')
-        .addClass('instagram-placeholder')
-        .attr('id', photo.id)
-        .append(
-          $('<a>')
-            .attr('target', '_blank')
-            .attr('href', photo.link)
-            .append(
-              $('<img>')
-                .addClass('instagram-image')
-                .attr('src', photo.images.thumbnail.url)
-            )
-        )
-      );
+      createPhotoElement(photo);
     })
+  }
+}
+
+function matchEventsByTime() {
+  var match_events_by_time = {};
+
+  MATCH_EVENTS.forEach(function(match_event) {
+    match_events_by_time[MATCH_START_TIME + match_event.time] = match_event;
+  });
+
+  return match_events_by_time;
+}
+
+function scoreByTime() {
+  var score = {};
+  var match_events_by_time = matchEventsByTime();
+
+  for(var t = MATCH_START_TIME; t < MATCH_END_TIME; t += 60) {
+    score[t] = t > MATCH_START_TIME ? score[t-60] : [0,0];
+
+    if (typeof match_events_by_time[t] != 'undefined' && 'goal' == match_events_by_time[t]['type']) {
+      score[t] = [score[t-60][0], score[t-60][1]];
+      score[t][MATCH_TEAMS.indexOf(match_events_by_time[t]['team'])] += 1;
+    }
+  }
+
+  return score;
+}
+
+function updateScore(time) {
+  for(var i = 0; i < MATCH_TEAMS.length; i++) {
+    $('#score .' + MATCH_TEAMS[i]).html(SCORE_BY_TIME[time][i]);
   }
 }
 
@@ -71,8 +103,8 @@ $(document).ready(function() {
     search: {
       lat: stadiumCoords[0],
       lng: stadiumCoords[1],
-      min_timestamp: 1339793100,
-      max_timestamp: 1339800600
+      min_timestamp: MATCH_START_TIME,
+      max_timestamp: MATCH_END_TIME
     },
     clientId: clientId,
     onComplete: function(data, res) {
@@ -80,32 +112,29 @@ $(document).ready(function() {
        time = (res['data'][photo]['created_time']);
        time = time - (time % 60)
        picture = res['data'][photo]
-       if (typeof photos[time] == 'undefined') {
-         photos[time] = [picture]
+       if (typeof PHOTOS[time] == 'undefined') {
+         PHOTOS[time] = [picture]
        }
        else {
-         photos[time].push(picture)
+         PHOTOS[time].push(picture)
        }
       }
     }
   });
 
   $("#slider").slider({
-    min: 1339793100,
-    max: 1339800600,
+    min: MATCH_START_TIME,
+    max: MATCH_END_TIME,
     step: 60,
     slide: function(event, ui) {
-      console.log(ui.value);
       time = ui.value;
       setTime(time);
       time = time - (time % 60);
-      console.log(time);
-      console.log(photos[time]);
-      console.log(timed_tweets[time]);
       showPhotos(time);
+      updateScore(time);
     },
     create: function(event, ui) {
-      MATCH_DATA.forEach(function(match_event) {
+      MATCH_EVENTS.forEach(function(match_event) {
        $("#slider").append("<div class='event " + match_event['type'] + "' style='left: " + ((match_event['time']/5400.0)*100) + "%'>" + match_event['type'] + " " + match_event['subjects'][0] + " (" + match_event['team'] + ")</div>")
      });
     }
